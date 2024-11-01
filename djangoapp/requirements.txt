@@ -1,0 +1,16 @@
+## -----------------------------------------------------------------------------
+## App libraries
+##
+## Check outdated libraries:
+##
+##     pip list --outdated
+## -----------------------------------------------------------------------------
+
+# Django framework -> https://www.djangoproject.com
+Django==5.0
+
+# Python-PostgreSQL -> http://initd.org/psycopg
+psycopg2-binary==2.9.9
+
+# mozilla-django-oidc -> https://github.com/mozilla/mozilla-django-oidc
+mozilla-django-oidc==4.0.1

@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  djangoapp:
+    build: ./djangoapp
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./djangoapp/:/usr/src/djangoapp/
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./djangoapp/.env.dev
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15
+    volumes:
+      - postgres_data_django:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=djangoapp
+      - POSTGRES_PASSWORD=djangoapp
+      - POSTGRES_DB=djangoapp_dev
+    env_file:
+      - ./djangoapp/.env.dev
+
+  reactapp:
+    build: ./reactapp
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin                   # Admin username
+      KEYCLOAK_ADMIN_PASSWORD: admin123 # Admin password
+      KC_DB: postgres                                     # Database type
+      KC_DB_URL_HOST: db                   # Database host
+      KC_DB_URL_DATABASE: keycloak          # Database name
+      KC_DB_USERNAME: keycloak                   # Database username
+      KC_DB_PASSWORD: keycloak123                   # Database password
+      KC_HOSTNAME_STRICT: 'false'          # Disable strict hostname check
+    command:
+      - start-dev                                         # Start Keycloak in dev mode
+    ports:
+      - "8080:8080"                                       # Keycloak available at localhost:8080
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=keycloak                   # Database user
+      - POSTGRES_PASSWORD=keycloak123              # Database password
+      - POSTGRES_DB=keycloak                 # Database name
+    volumes:
+      - postgres_data_keycloak:/var/lib/postgresql/data
+    env_file:
+      - ./djangoapp/.env.dev
+
+volumes:
+  postgres_data_django:
+  postgres_data_keycloak:
